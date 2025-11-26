@@ -22,7 +22,7 @@ public class PaymentController {
     private final NotificationService notificationService;
     private final UserService userService;
 
-    // 🔥 FIXED URL FOR RENDER DEPLOYMENT (NO LOCALHOST)
+    // Render deployment URL (NO localhost)
     private static final String BASE_URL = "https://moviebooking-f5av.onrender.com";
 
     @GetMapping("/pay/{bookingId}")
@@ -51,6 +51,7 @@ public class PaymentController {
             Model model) {
 
         boolean emailSent = false;
+        Long bookingId = null;
 
         try {
             String paypalOrderId = token != null ? token : orderId;
@@ -61,21 +62,11 @@ public class PaymentController {
 
             com.paypal.orders.Order captured = payPalService.capturePayment(paypalOrderId);
 
-            String txnId = captured.purchaseUnits().get(0)
-                    .payments()
-                    .captures()
-                    .get(0)
-                    .id();
-
-            Long bookingId = null;
-
-            if (orderId != null && orderId.startsWith("ORDER_")) {
-                bookingId = Long.valueOf(orderId.replace("ORDER_", ""));
-            } else {
-                bookingId = Long.valueOf(
-                        captured.purchaseUnits().get(0).referenceId().replace("ORDER_", "")
-                );
-            }
+            bookingId = Long.valueOf(
+                    (orderId != null && orderId.startsWith("ORDER_"))
+                            ? orderId.replace("ORDER_", "")
+                            : captured.purchaseUnits().get(0).referenceId().replace("ORDER_", "")
+            );
 
             Booking updatedBooking = bookingService.pay(bookingId);
 
@@ -85,25 +76,19 @@ public class PaymentController {
                 notificationService.sendBookingConfirmation(
                         userEmail,
                         bookingId,
-                        updatedBooking.getSeatCount() * 120);
-
+                        updatedBooking.getSeatCount() * 120
+                );
                 emailSent = true;
             }
 
-            model.addAttribute("transactionId", txnId);
-            model.addAttribute("bookingId", bookingId);
-            model.addAttribute("emailStatus", emailSent ? "success" : "failed");
-
-            ra.addFlashAttribute("success", "Payment Successful!");
-
         } catch (Exception e) {
             e.printStackTrace();
-            ra.addFlashAttribute("error", "Payment processing failed!");
-            model.addAttribute("emailStatus", "failed");
         }
 
-        // 🔥 Redirect ALWAYS to Render-hosted page
-        return "redirect:" + BASE_URL + "/email-status";
+        // Redirect with query parameters
+        return "redirect:" + BASE_URL 
+                + "/email-status?status=" + (emailSent ? "success" : "failed") 
+                + "&bookingId=" + bookingId;
     }
 
     @GetMapping("/cancel")
