@@ -42,16 +42,22 @@ public class PaymentController {
 
     @GetMapping("/success")
     public String success(
-            @RequestParam String token,
-            @RequestParam String orderId,
+            @RequestParam(name = "token", required = false) String token,
+            @RequestParam(name = "orderId", required = false) String orderId,
             RedirectAttributes ra,
             Model model) {
 
         boolean emailSent = false;
 
         try {
+            // PayPal sometimes returns only token, so handle fallback logic
+            String paypalOrderId = token != null ? token : orderId;
 
-            com.paypal.orders.Order captured = payPalService.capturePayment(token);
+            if (paypalOrderId == null) {
+                throw new IllegalArgumentException("No PayPal order identifier received.");
+            }
+
+            com.paypal.orders.Order captured = payPalService.capturePayment(paypalOrderId);
 
             String txnId = captured.purchaseUnits().get(0)
                     .payments()
@@ -59,7 +65,12 @@ public class PaymentController {
                     .get(0)
                     .id();
 
-            Long bookingId = Long.valueOf(orderId.replace("ORDER_", ""));
+            // Extract only the booking ID from stored format ORDER_xx
+            Long bookingId = Long.valueOf((orderId != null ? orderId : ""));
+            if (bookingId == null || bookingId == 0L) {
+                bookingId = Long.valueOf(captured.purchaseUnits().get(0).referenceId().replace("ORDER_", ""));
+            }
+
             Booking updatedBooking = bookingService.pay(bookingId);
 
             String userEmail = userService.getUserEmail(updatedBooking.getUserId());
@@ -87,7 +98,6 @@ public class PaymentController {
             model.addAttribute("emailStatus", "failed");
         }
 
-        Long localId = Long.valueOf(orderId.replace("ORDER_", ""));
         return "email-status";
     }
 
