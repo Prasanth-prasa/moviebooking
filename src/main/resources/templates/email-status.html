@@ -44,12 +44,19 @@
 <div class="card">
     <h2>Booking Status</h2>
 
-    <p th:if="${emailStatus == 'success'}" class="success">
+    <!-- Show success if status=success -->
+    <p th:if="${param.status} == 'success'" class="success">
         🎉 Email Sent Successfully!
     </p>
 
-    <p th:if="${emailStatus == 'failed'}" class="failed">
+    <!-- Show failed if status=failed -->
+    <p th:if="${param.status} == 'failed'" class="failed">
         ❌ Email Sending Failed. Please check inbox later or retry.
+    </p>
+
+    <!-- Show booking ID if available -->
+    <p th:if="${param.bookingId != null}">
+        Booking ID: <b th:text="${param.bookingId}"></b>
     </p>
 
     <a href="/home" class="btn">Return Home</a>
