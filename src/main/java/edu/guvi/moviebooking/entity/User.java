@@ -7,7 +7,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="users")
+@Table(name="Movieuser")
 public class User {
 
     @Id
