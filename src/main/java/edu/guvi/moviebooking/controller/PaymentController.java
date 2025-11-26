@@ -103,7 +103,7 @@ public class PaymentController {
         }
 
         // 🔥 Redirect ALWAYS to Render-hosted page
-        return "redirect:" + APP_BASE_URL + "/email-status";
+        return "redirect:" + BASE_URL + "/email-status";
     }
 
     @GetMapping("/cancel")
