@@ -45,7 +45,7 @@ public class SecurityConfig {
                 ).permitAll()
 
                 // ⭐ Allow email test
-                .requestMatchers("/test-mail").permitAll()
+                .requestMatchers("/email-status").permitAll()
 
                 .requestMatchers("/booking/cancel/**").authenticated()
 
