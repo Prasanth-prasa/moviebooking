@@ -14,10 +14,14 @@ public class PayPalService {
     @Autowired
     private PayPalHttpClient client;
 
-    private static final String LOCAL_URL = "http://localhost:8080";
+    // Updated: Dynamic URL for Render Deployment
+    private static final String BASE_URL =
+            System.getenv("APP_BASE_URL") != null
+                    ? System.getenv("APP_BASE_URL")
+                    : "http://localhost:8080";
 
     private String buildUrl(String path, String orderId) {
-        return LOCAL_URL + path + "?orderId=" + orderId;
+        return BASE_URL + path + "?orderId=" + orderId;
     }
 
     public String createPayment(String orderId, double inrAmount) throws IOException {
