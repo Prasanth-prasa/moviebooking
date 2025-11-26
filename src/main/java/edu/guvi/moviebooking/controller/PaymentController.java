@@ -22,6 +22,11 @@ public class PaymentController {
     private final NotificationService notificationService;
     private final UserService userService;
 
+    // 🔥 Uses Render URL if deployed, otherwise localhost
+    private final String BASE_URL = System.getenv("APP_URL") != null 
+            ? System.getenv("APP_URL") 
+            : "http://localhost:8080";
+
     @GetMapping("/pay/{bookingId}")
     public String pay(@PathVariable Long bookingId) {
 
@@ -50,7 +55,6 @@ public class PaymentController {
         boolean emailSent = false;
 
         try {
-            // PayPal sometimes returns only token, so handle fallback logic
             String paypalOrderId = token != null ? token : orderId;
 
             if (paypalOrderId == null) {
@@ -65,24 +69,25 @@ public class PaymentController {
                     .get(0)
                     .id();
 
-            // Extract only the booking ID from stored format ORDER_xx
-            Long bookingId = Long.valueOf((orderId != null ? orderId : ""));
-            if (bookingId == null || bookingId == 0L) {
-                bookingId = Long.valueOf(captured.purchaseUnits().get(0).referenceId().replace("ORDER_", ""));
+            Long bookingId = null;
+
+            // Extract booking id from PayPal reference safely
+            if (orderId != null && orderId.startsWith("ORDER_")) {
+                bookingId = Long.valueOf(orderId.replace("ORDER_", ""));
+            } else {
+                bookingId = Long.valueOf(
+                        captured.purchaseUnits().get(0).referenceId().replace("ORDER_", ""));
             }
 
             Booking updatedBooking = bookingService.pay(bookingId);
 
             String userEmail = userService.getUserEmail(updatedBooking.getUserId());
 
-            System.out.println("📧 Sending email to: " + userEmail);
-
             if (userEmail != null && !userEmail.isEmpty()) {
                 notificationService.sendBookingConfirmation(
                         userEmail,
                         bookingId,
                         updatedBooking.getSeatCount() * 120);
-
                 emailSent = true;
             }
 
@@ -98,7 +103,8 @@ public class PaymentController {
             model.addAttribute("emailStatus", "failed");
         }
 
-        return "email-status";
+        // 🔥 Redirect to deployed URL instead of returning a view
+        return "redirect:" + BASE_URL + "/email-status";
     }
 
     @GetMapping("/cancel")
