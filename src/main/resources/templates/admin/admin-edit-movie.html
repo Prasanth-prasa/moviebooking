@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Movie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-black text-white">
+
+    <div class="max-w-lg mx-auto mt-10 bg-[#1F1F1F] p-8 rounded-xl">
+        <h2 class="text-2xl font-bold text-red-500 mb-6">Edit Movie 🎬</h2>
+
+        <form th:action="@{/admin/movies/update}" th:object="${movie}" method="post" enctype="multipart/form-data">
+
+            <input type="hidden" th:field="*{id}" />
+
+            <label class="block">Title</label>
+            <input class="w-full p-2 text-black rounded" th:field="*{title}">
+
+            <label class="block mt-3">Genre</label>
+            <input class="w-full p-2 text-black rounded" th:field="*{genre}">
+
+            <label class="block mt-3">Language</label>
+            <input class="w-full p-2 text-black rounded" th:field="*{language}">
+
+            <label class="block mt-3">Duration</label>
+            <input class="w-full p-2 text-black rounded" th:field="*{duration}">
+
+            <label class="block mt-3">Current Poster</label>
+            <img th:src="${movie.poster}" class="w-40 rounded shadow-md mb-3" />
+
+            <label class="block mt-3 text-gray-300">Rating</label>
+            <select th:field="*{rating}" class="w-full p-2 text-black rounded">
+                <option value="U">U - Universal</option>
+                <option value="UA">UA - Parental Guidance</option>
+                <option value="A">A - Adults Only</option>
+            </select>
+
+
+            <label class="block">Upload New Poster (optional)</label>
+            <input type="file" name="posterFile" class="text-gray-300" />
+
+            <button class="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded mt-5">
+                Update Movie ✔
+            </button>
+
+        </form>
+    </div>
+
+</body>
+
+</html>

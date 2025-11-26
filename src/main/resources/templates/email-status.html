@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Email Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            background: #111;
+            color: #fff;
+        }
+        .card {
+            padding: 30px;
+            width: 400px;
+            border-radius: 10px;
+            background: #222;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+        .success {
+            color: #4CAF50;
+            font-size: 22px;
+        }
+        .failed {
+            color: #FF5252;
+            font-size: 22px;
+        }
+        .btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            background: #007bff;
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Booking Status</h2>
+
+    <p th:if="${emailStatus == 'success'}" class="success">
+        🎉 Email Sent Successfully!
+    </p>
+
+    <p th:if="${emailStatus == 'failed'}" class="failed">
+        ❌ Email Sending Failed. Please check inbox later or retry.
+    </p>
+
+    <a href="/home" class="btn">Return Home</a>
+</div>
+
+</body>
+</html>

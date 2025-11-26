@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Show List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-black text-white p-10">
+
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-red-500">Manage Shows ⏱️</h1>
+
+    <a href="/admin/dashboard" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded">⬅ Dashboard</a>
+
+    <a href="/admin/shows/add" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">➕ Add Show</a>
+</div>
+
+<table class="w-full bg-[#1A1A1A] rounded-lg overflow-hidden text-left">
+    <tr class="bg-gray-800 text-gray-300">
+        <th class="p-3">Movie</th>
+        <th class="p-3">Theater</th>
+        <th class="p-3">Date</th>
+        <th class="p-3">Time</th>
+        <th class="p-3">Price</th>
+        <th class="p-3">Actions</th>
+    </tr>
+
+    <!-- Show records -->
+    <tr th:each="s : ${shows}" class="border-b border-gray-700">
+        <td class="p-3" th:text="${s.movie.title}"></td>
+        <td class="p-3" th:text="${s.theater.name}"></td>
+        <td class="p-3" th:text="${s.showDate}"></td>
+        <td class="p-3" th:text="${s.showTime}"></td>
+        <td class="p-3" th:text="${s.ticketPrice}"></td>
+
+        <td class="p-3">
+            <!-- NEW Edit Button -->
+            <a th:href="@{'/admin/shows/edit/' + ${s.id}}"
+               class="text-blue-400 hover:underline mr-3">Edit</a>
+
+            <!-- Existing Delete Button -->
+            <a th:href="@{'/admin/shows/delete/' + ${s.id}}"
+               onclick="return confirm('Delete this show?')"
+               class="text-red-400 hover:underline">Delete</a>
+        </td>
+    </tr>
+
+    <!-- No Data Message -->
+    <tr th:if="${shows == null or shows.isEmpty()}">
+        <td colspan="6" class="p-5 text-center text-gray-400">
+            No shows added yet ⏳
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Booking Summary</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-black text-white p-10">
+
+<h2 class="text-3xl font-bold text-green-500 mb-6 flex items-center">🎟 Booking Summary</h2>
+
+<div class="bg-[#0d1321] p-6 rounded-xl shadow-lg max-w-2xl">
+
+    <p class="text-lg font-semibold mb-3">🎴 Seats:</p>
+    <p class="text-gray-300 mb-4">
+        <span th:each="seat : ${booking.seats}" th:text="${seat.seatNumber} + ' '"></span>
+    </p>
+
+    <p><strong>Total Price:</strong> ₹ <span th:text="${booking.seatCount * 120}"></span>
+        <span class="text-gray-400 text-sm"></span>
+    </p>
+
+    <p><strong>Status:</strong>
+        <span th:text="${booking.status}"></span>
+    </p>
+</div>
+
+<!-- ⭐ PAYPAL BUTTON (only when pending) -->
+<div th:if="${booking.status.name() == 'PENDING'}" class="mt-6">
+    <a th:href="@{'/payment/pay/' + ${booking.id}}"
+       class="bg-yellow-500 hover:bg-yellow-600 text-black px-5 py-3 rounded-lg shadow-lg font-bold transition">
+        💳 Pay with PayPal
+    </a>
+</div>
+
+<div class="flex gap-4 mt-6">
+
+    <!-- Cancel only available when pending -->
+    <a th:if="${booking.status.name() == 'PENDING'}"
+   th:href="@{/booking/cancel/{id}(id=${booking.id})}"
+   class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white">
+    ❌ Cancel Booking
+</a>
+
+
+    <a href="/home" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-lg transition">
+        🏠 Go Home
+    </a>
+</div>
+
+</body>
+</html>

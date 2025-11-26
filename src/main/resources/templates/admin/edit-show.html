@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Edit Show</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-black text-white p-10">
+
+<h1 class="text-3xl font-bold text-red-500 mb-6">Edit Show ✏️</h1>
+
+<form th:action="@{/admin/shows/update}" th:object="${show}" method="post" class="space-y-6">
+
+    <!-- Hidden ID Field -->
+    <input type="hidden" th:field="*{id}"/>
+
+    <!-- Movie dropdown -->
+    <select th:field="*{movie.id}" class="w-full p-3 bg-gray-800 rounded">
+        <option value="">Select Movie</option>
+        <option th:each="m : ${movies}"
+                th:value="${m.id}"
+                th:text="${m.title}"
+                th:selected="${m.id == show.movie.id}">
+        </option>
+    </select>
+
+    <!-- Theater dropdown -->
+    <select th:field="*{theater.id}" class="w-full p-3 bg-gray-800 rounded">
+        <option value="">Select Theater</option>
+        <option th:each="t : ${theaters}"
+                th:value="${t.id}"
+                th:text="${t.name}"
+                th:selected="${t.id == show.theater.id}">
+        </option>
+    </select>
+
+    <!-- Date -->
+    <input type="date" th:field="*{showDate}" class="w-full p-3 bg-gray-800 rounded"/>
+
+    <!-- Time -->
+    <input type="time" th:field="*{showTime}" class="w-full p-3 bg-gray-800 rounded"/>
+
+    <!-- Ticket Price -->
+    <input type="number" th:field="*{ticketPrice}" class="w-full p-3 bg-gray-800 rounded"
+           placeholder="Ticket Price"/>
+
+    <!-- Buttons -->
+    <div class="flex gap-4">
+        <button class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded font-bold">Update Show</button>
+        <a href="/admin/shows" class="bg-gray-600 hover:bg-gray-700 px-6 py-3 rounded font-bold">Cancel</a>
+    </div>
+
+</form>
+
+</body>
+</html>

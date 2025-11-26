@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Showtimes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-black text-white p-10">
+
+    <h2 class="text-3xl font-bold text-red-500 mb-6">
+        Available Shows for 🎬 <span th:text="${movie.title}"></span>
+    </h2>
+
+    <div class="space-y-4">
+        <div th:each="s : ${shows}" class="bg-[#1A1A1A] p-4 rounded shadow-md flex justify-between items-center">
+
+            <div>
+                <p>🎭 Theater: <span th:text="${s.theater.name}"></span></p>
+                <p>📅 Date: <span th:text="${s.showDate}"></span></p>
+                <p>⏱️ Time: <span th:text="${s.showTime}"></span></p>
+                <p>💰 Price: ₹<span th:text="${s.ticketPrice}"></span></p>
+            </div>
+
+            <a th:href="@{'/seats/' + ${s.id}}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+                Select Seats 🎟
+            </a>
+        </div>
+    </div>
+
+    <a href="/home" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded mt-6 inline-block">
+        ⬅ Back
+    </a>
+
+</body>
+
+</html>

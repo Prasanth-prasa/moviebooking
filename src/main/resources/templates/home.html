@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        ::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+
+<body class="bg-black text-white">
+
+    <!-- 🔹 Navbar -->
+    <header class="bg-[#1F1F1F] px-6 py-4 flex justify-between items-center shadow-xl">
+        <h1 class="text-red-500 font-bold text-2xl">🎬 MovieBooking</h1>
+
+        <input 
+            type="text" 
+            placeholder="Search for movies..." 
+            class="w-1/2 px-4 py-2 rounded-lg text-black outline-none"
+        />
+
+        <a th:href="@{/logout}" class="text-gray-300 hover:text-red-400 font-semibold">Logout</a>
+    </header>
+
+
+    <!-- 🔹 Auto Slider: Movie Posters -->
+    <section class="overflow-x-auto whitespace-nowrap py-6 px-4 scroll-smooth">
+        <div class="flex space-x-6">
+            <img th:each="movie : ${movies}"
+                th:src="${movie.poster}"
+                class="w-[350px] h-[200px] object-cover rounded-xl cursor-pointer transition duration-300 hover:scale-105 shadow-lg"
+            />
+        </div>
+    </section>
+
+
+    <!-- 🔹 Section Title -->
+    <div class="px-6 mt-6 flex justify-between items-center">
+        <h2 class="text-3xl font-bold text-red-500">Now Showing 🎟</h2>
+
+        <!-- Sort / Filter UI (Optional future feature placeholder) -->
+        <select class="bg-[#1F1F1F] px-3 py-2 rounded-lg text-gray-300 border border-gray-600">
+            <option>Sort by ⭐ Rating</option>
+            <option>Sort by ⏳ Duration</option>
+            <option>Sort by 🆕 Newest</option>
+        </select>
+    </div>
+
+
+    <!-- 🔹 Movie Cards Grid -->
+    <div th:if="${movies != null and !movies.isEmpty()}"
+         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-8 p-6">
+
+        <div th:each="movie : ${movies}"
+            class="bg-[#1A1A1A] rounded-xl overflow-hidden shadow-lg hover:shadow-red-600/50 hover:-translate-y-2 transition duration-300">
+
+            <!-- Poster -->
+            <img th:src="${movie.poster}" class="w-full h-64 object-cover"/>
+
+            <!-- Details -->
+            <div class="p-4">
+                <h3 class="text-lg font-semibold truncate" th:text="${movie.title}"></h3>
+
+                <p class="text-gray-400 text-sm mt-2" th:text="${movie.genre}"></p>
+
+                <div class="flex justify-between items-center mt-3">
+                    <span th:text="'⭐ ' + ${movie.rating}" class="text-yellow-400 text-sm"></span>
+                    <span th:text="'⏳ ' + ${movie.duration}" class="text-gray-400 text-sm"></span>
+                </div>
+
+                <a th:href="@{'/shows/' + ${movie.id}}"
+                   class="block bg-red-600 hover:bg-red-700 text-center py-2 mt-4 rounded-lg font-semibold transition">
+                   Book Now
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 🔹 Empty State -->
+    <p th:if="${movies == null or movies.isEmpty()}" 
+       class="text-gray-400 text-lg text-center mt-10">
+        No movies added yet. 🍿 Come back later!
+    </p>
+
+</body>
+</html>
