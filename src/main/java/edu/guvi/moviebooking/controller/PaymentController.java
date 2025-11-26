@@ -22,10 +22,10 @@ public class PaymentController {
     private final NotificationService notificationService;
     private final UserService userService;
 
-    // 🔥 Uses Render URL if deployed, otherwise localhost
-    private final String BASE_URL = System.getenv("APP_URL") != null 
-            ? System.getenv("APP_URL") 
-            : "http://localhost:8080";
+    // Use deployed Render URL if available, otherwise localhost
+    private final String BASE_URL = (System.getenv("APP_URL") != null
+            ? System.getenv("APP_URL").replaceAll("/+$", "")   // remove trailing slash
+            : "http://localhost:8080");
 
     @GetMapping("/pay/{bookingId}")
     public String pay(@PathVariable Long bookingId) {
@@ -55,12 +55,14 @@ public class PaymentController {
         boolean emailSent = false;
 
         try {
+            // PayPal sometimes returns only `token`, sometimes `orderId`
             String paypalOrderId = token != null ? token : orderId;
 
             if (paypalOrderId == null) {
-                throw new IllegalArgumentException("No PayPal order identifier received.");
+                throw new IllegalArgumentException("❌ Missing PayPal order identifier");
             }
 
+            // Capture Payment
             com.paypal.orders.Order captured = payPalService.capturePayment(paypalOrderId);
 
             String txnId = captured.purchaseUnits().get(0)
@@ -69,25 +71,28 @@ public class PaymentController {
                     .get(0)
                     .id();
 
+            // Extract Booking ID
             Long bookingId = null;
-
-            // Extract booking id from PayPal reference safely
             if (orderId != null && orderId.startsWith("ORDER_")) {
                 bookingId = Long.valueOf(orderId.replace("ORDER_", ""));
             } else {
                 bookingId = Long.valueOf(
-                        captured.purchaseUnits().get(0).referenceId().replace("ORDER_", ""));
+                        captured.purchaseUnits().get(0).referenceId().replace("ORDER_", "")
+                );
             }
 
+            // Update Booking as paid
             Booking updatedBooking = bookingService.pay(bookingId);
 
+            // Send Email
             String userEmail = userService.getUserEmail(updatedBooking.getUserId());
 
             if (userEmail != null && !userEmail.isEmpty()) {
                 notificationService.sendBookingConfirmation(
                         userEmail,
                         bookingId,
-                        updatedBooking.getSeatCount() * 120);
+                        updatedBooking.getSeatCount() * 120
+                );
                 emailSent = true;
             }
 
@@ -99,11 +104,11 @@ public class PaymentController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            ra.addFlashAttribute("error", "Payment processing failed!");
+            ra.addFlashAttribute("error", "Payment failed!");
             model.addAttribute("emailStatus", "failed");
         }
 
-        // 🔥 Redirect to deployed URL instead of returning a view
+        // Always redirect to deployed front-end URL
         return "redirect:" + BASE_URL + "/email-status";
     }
 
